@@ -12,7 +12,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use("/api/hello", helloRoutes);
+
+// starting endpoints for each routers
+app.use("/api/test", helloRoutes);
 
 // global error handler
 app.use((err, req, res, next) => {

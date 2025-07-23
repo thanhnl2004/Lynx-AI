@@ -2,4 +2,8 @@ const hello = (req, res) => {
   res.json({ message: "Hello World" });
 };
 
-export { hello };
+const goodbye = (req, res) => {
+  res.json({ message: "Goodbye World" });
+};
+
+export { hello, goodbye };

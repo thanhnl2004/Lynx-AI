@@ -4,8 +4,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "dev:llm": "nodemon src/services/ai/llm-model.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,8 +14,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@ai-sdk/google": "^1.2.22",
+    "@composio/core": "^0.1.36",
+    "@composio/vercel": "^0.1.36",
     "@prisma/client": "^6.11.1",
     "@supabase/supabase-js": "^2.50.4",
+    "ai": "^4.3.19",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
