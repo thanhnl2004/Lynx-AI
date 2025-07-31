@@ -13,6 +13,3 @@ export const answerQuestion = async (prompt: string) => {
 
   return text;
 };
-
-const answer = await answerQuestion("What is the capital of France?");
-console.log(answer);

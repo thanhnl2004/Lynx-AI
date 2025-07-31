@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 import helloRoutes from "./routes/hello.route.js";
-
+import aiRoutes from "./routes/ai.route.js";
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -12,9 +12,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-// starting endpoints for each routers
-app.use("/api/test", helloRoutes);
+app.use(helloRoutes);
+app.use(aiRoutes);
 
 // global error handler
 app.use((err, req, res, next) => {

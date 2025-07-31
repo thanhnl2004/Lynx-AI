@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
-    "dev:llm": "nodemon src/services/ai/llm-model.ts",
+    "start": "node --loader ts-node/esm src/app.js",
+    "dev": "nodemon --exec 'node --loader ts-node/esm' src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -26,6 +28,9 @@
     "prisma": "^6.11.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@types/node": "^24.1.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

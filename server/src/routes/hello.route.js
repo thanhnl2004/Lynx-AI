@@ -4,6 +4,6 @@ import { hello, goodbye } from '../controllers/hello.controller.js';
 
 const router = Router();
 
-router.get('/hello', hello);
-router.get('/goodbye', goodbye);
+router.get('/api/hello', hello);
+router.get('/api/goodbye', goodbye);
 export default router;
