@@ -27,8 +27,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <LLMInput />
-      {helloData && <p>{helloData.response}</p>}
     </div>
   );
 }
