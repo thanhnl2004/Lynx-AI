@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { createClient } from "@/utils/supabase/server";
-import { AuthProvider } from "@/app/contexts/auth-context";
+import { AuthProvider } from "@/components/contexts/auth-context";
 import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { QueryProvider } from "@/components/providers/query-provider";
 
