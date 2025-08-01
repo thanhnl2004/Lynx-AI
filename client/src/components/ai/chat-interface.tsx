@@ -49,6 +49,7 @@ export function ChatInterface() {
     }
   }, [messages, status]);
 
+  // Window scroll detection
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -71,8 +72,8 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="min-h-screen bg-white">    
-      <div className="max-w-4xl mx-auto px-4 pt-4 pb-32 space-y-4">
+    <div className="min-h-screen bg-white pb-24">    
+      <div className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
             <p>Start a conversation with the AI assistant</p>
@@ -103,7 +104,9 @@ export function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="fixed bottom-6 left-0 right-0 px-4 z-10">
+      {/* Fixed input at bottom - positioned absolutely within the SidebarInset context */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-10" 
+           style={{ marginLeft: 'var(--sidebar-width, 0px)' }}>
         <div className="max-w-4xl mx-auto">
           <Input 
             onSendMessage={handleSendMessage}
