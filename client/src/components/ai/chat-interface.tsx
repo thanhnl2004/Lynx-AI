@@ -16,51 +16,53 @@ export function ChatInterface() {
     }),
   });
 
-  // Auto-scroll to bottom when messages change or during streaming
-  useEffect(() => {
-    if (isAutoScrollingRef.current) {
-      messagesEndRef.current?.scrollIntoView({ 
+  // Scroll to bottom function
+  const scrollToBottom = () => {
+    if (messagesEndRef.current && isAutoScrollingRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
         behavior: 'smooth',
         block: 'end' 
       });
     }
-  }, [messages, status]);
-
-  // Auto-scroll during streaming with more frequent updates
-  useEffect(() => {
-    if (status === 'streaming') {
-      const scrollInterval = setInterval(() => {
-        if (isAutoScrollingRef.current) {
-          messagesEndRef.current?.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'end' 
-          });
-        }
-      }, 100);
-
-      return () => clearInterval(scrollInterval);
-    }
-  }, [status]);
-
-  // Handle manual scrolling - disable auto-scroll if user scrolls up
-  const handleScroll = () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    
-    const isNearBottom = documentHeight - scrollTop - windowHeight < 100;
-    
-    // Enable auto-scroll if user is near bottom, disable if they scroll up
-    isAutoScrollingRef.current = isNearBottom;
   };
 
-  // Add scroll listener to window
+  // Auto-scroll when messages change
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    if (isAutoScrollingRef.current) {
+      // Small delay to ensure DOM is updated
+      const timeoutId = setTimeout(scrollToBottom, 10);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [messages]);
+
+  // Auto-scroll during streaming
+  useEffect(() => {
+    if (status === 'streaming' && isAutoScrollingRef.current) {
+      const scrollInterval = setInterval(scrollToBottom, 100); 
+      return () => clearInterval(scrollInterval);
+    }
+  }, [status]); 
+
+  useEffect(() => {
+    if (status === 'streaming' && isAutoScrollingRef.current) {
+      scrollToBottom();
+    }
+  }, [messages, status]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      const distanceFromBottom = documentHeight - scrollTop - windowHeight;
+      isAutoScrollingRef.current = distanceFromBottom < 200;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Re-enable auto-scroll when new message is sent
   const handleSendMessage = (message: string) => {
     if (message.trim()) {
       isAutoScrollingRef.current = true;
@@ -70,7 +72,6 @@ export function ChatInterface() {
 
   return (
     <div className="min-h-screen bg-white">    
-      {/* Messages area - no overflow hidden, let page scroll naturally */}
       <div className="max-w-4xl mx-auto px-4 pt-4 pb-32 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
@@ -99,11 +100,9 @@ export function ChatInterface() {
           </div>
         )}
         
-        {/* Invisible element to scroll to */}
         <div ref={messagesEndRef} />
       </div>
       
-      {/* Fixed input at bottom */}
       <div className="fixed bottom-6 left-0 right-0 px-4 z-10">
         <div className="max-w-4xl mx-auto">
           <Input 
