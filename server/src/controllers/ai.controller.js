@@ -1,22 +1,23 @@
-import { generateText } from "ai";
+import { streamText, convertToModelMessages } from "ai";
 import { google } from "@ai-sdk/google";
 
 const model = google("gemini-2.0-flash");
 
 export const getAIResponse = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { messages } = req.body;
 
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    const { text } = await generateText({
+    const result = streamText({
       model,
-      prompt: message,
+      messages: convertToModelMessages(messages),
+      system: 'You are a helpful AI assistant.',
     });
 
-    res.json({ response: text });
+    res.json({ response: result.toUIMessageStreamResponse()});
   } catch (error) {
     console.error('AI Controller Error:', error);
     res.status(500).json({ error: 'Failed to get AI response' });
