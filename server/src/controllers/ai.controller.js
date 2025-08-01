@@ -17,10 +17,14 @@ export const getAIResponse = async (req, res) => {
       system: 'You are a helpful AI assistant.',
     });
 
-    res.json({ response: result.toUIMessageStreamResponse()});
+    // Pipe the UI message stream directly to the response
+    result.pipeUIMessageStreamToResponse(res);
+    
   } catch (error) {
     console.error('AI Controller Error:', error);
-    res.status(500).json({ error: 'Failed to get AI response' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to get AI response' });
+    }
   }
 };
 

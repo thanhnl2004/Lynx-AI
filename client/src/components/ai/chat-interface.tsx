@@ -3,13 +3,12 @@
 import { useChat } from '@ai-sdk/react';
 import { ChatMessage } from './chat-message';
 import { Input } from '@/components/ai/chat-input';
-import { ChatHeader } from '@/components/ai/chat-header';
 import { DefaultChatTransport } from 'ai';
 
 export function ChatInterface() {
   const { messages, sendMessage, status, error, stop } = useChat({
     transport: new DefaultChatTransport({
-      api: '/api/chat',
+      api: 'http://localhost:4000/api/chat',
     }),
   });
 
@@ -20,9 +19,7 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto bg-white">
-      <ChatHeader />
-      
+    <div className="flex flex-col h-screen max-w-4xl mx-auto bg-white">    
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
