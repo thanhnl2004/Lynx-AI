@@ -8,7 +8,6 @@ import { DefaultChatTransport } from 'ai';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isAutoScrollingRef = useRef(true);
 
   const { messages, sendMessage, status, error, stop } = useChat({
@@ -37,7 +36,7 @@ export function ChatInterface() {
             block: 'end' 
           });
         }
-      }, 100); // Scroll every 100ms during streaming
+      }, 100);
 
       return () => clearInterval(scrollInterval);
     }
@@ -45,30 +44,34 @@ export function ChatInterface() {
 
   // Handle manual scrolling - disable auto-scroll if user scrolls up
   const handleScroll = () => {
-    if (!messagesContainerRef.current) return;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
     
-    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+    const isNearBottom = documentHeight - scrollTop - windowHeight < 100;
     
     // Enable auto-scroll if user is near bottom, disable if they scroll up
     isAutoScrollingRef.current = isNearBottom;
   };
 
+  // Add scroll listener to window
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Re-enable auto-scroll when new message is sent
   const handleSendMessage = (message: string) => {
     if (message.trim()) {
-      isAutoScrollingRef.current = true; // Always auto-scroll for new messages
+      isAutoScrollingRef.current = true;
       sendMessage({ text: message });
     }
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto bg-white">    
-      <div 
-        ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4"
-        onScroll={handleScroll}
-      >
+    <div className="min-h-screen bg-white">    
+      {/* Messages area - no overflow hidden, let page scroll naturally */}
+      <div className="max-w-4xl mx-auto px-4 pt-4 pb-32 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
             <p>Start a conversation with the AI assistant</p>
@@ -100,12 +103,15 @@ export function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="border-t bg-gray-50 p-4">
-        <Input 
-          onSendMessage={handleSendMessage}
-          disabled={status === 'streaming'}
-          isLoading={status === 'streaming'}
-        />
+      {/* Fixed input at bottom */}
+      <div className="fixed bottom-6 left-0 right-0 px-4 z-10">
+        <div className="max-w-4xl mx-auto">
+          <Input 
+            onSendMessage={handleSendMessage}
+            disabled={status === 'streaming'}
+            isLoading={status === 'streaming'}
+          />
+        </div>
       </div>
     </div>
   );
