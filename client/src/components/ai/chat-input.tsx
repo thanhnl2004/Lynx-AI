@@ -33,7 +33,7 @@ export const Input = ({
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="What would you like to know?"
+        placeholder="Ask anything"
         className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-base"
         onKeyDown={handleKeyPress}
         disabled={disabled}

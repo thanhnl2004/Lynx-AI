@@ -9,6 +9,7 @@ import { DefaultChatTransport } from 'ai';
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAutoScrollingRef = useRef(true);
+  const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage, status, error, stop } = useChat({
     transport: new DefaultChatTransport({
@@ -26,26 +27,22 @@ export function ChatInterface() {
     }
   };
 
-  // Auto-scroll when messages change
+  // Scroll to last user message function
+  const scrollToLastUserMessage = () => {
+    if (lastUserMessageRef.current) {
+      lastUserMessageRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start' 
+      });
+    }
+  };
+
+  // Auto-scroll when messages change (but not during streaming)
   useEffect(() => {
-    if (isAutoScrollingRef.current) {
+    if (isAutoScrollingRef.current && status !== 'streaming') {
       // Small delay to ensure DOM is updated
       const timeoutId = setTimeout(scrollToBottom, 10);
       return () => clearTimeout(timeoutId);
-    }
-  }, [messages]);
-
-  // Auto-scroll during streaming
-  useEffect(() => {
-    if (status === 'streaming' && isAutoScrollingRef.current) {
-      const scrollInterval = setInterval(scrollToBottom, 100); 
-      return () => clearInterval(scrollInterval);
-    }
-  }, [status]); 
-
-  useEffect(() => {
-    if (status === 'streaming' && isAutoScrollingRef.current) {
-      scrollToBottom();
     }
   }, [messages, status]);
 
@@ -66,13 +63,28 @@ export function ChatInterface() {
 
   const handleSendMessage = (message: string) => {
     if (message.trim()) {
-      isAutoScrollingRef.current = true;
+      // If user was scrolled up, we want to scroll to the new message instead of bottom
+      const wasScrolledUp = !isAutoScrollingRef.current;
+      
       sendMessage({ text: message });
+      
+      if (wasScrolledUp) {
+        // Don't auto-scroll to bottom, instead scroll to the new user message
+        isAutoScrollingRef.current = false;
+        // Scroll to new user message after a short delay to ensure it's rendered
+        setTimeout(scrollToLastUserMessage, 100);
+      } else {
+        // Normal behavior - scroll to bottom
+        isAutoScrollingRef.current = true;
+      }
     }
   };
 
+  // Get the last user message for scrolling reference
+  const lastUserMessage = messages.filter(m => m.role === 'user').slice(-1)[0];
+
   return (
-    <div className="min-h-screen bg-white pb-24">    
+    <div className="min-h-screen bg-white pb-32">    
       <div className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
@@ -81,7 +93,12 @@ export function ChatInterface() {
         )}
         
         {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
+          <div 
+            key={message.id}
+            ref={message.id === lastUserMessage?.id && message.role === 'user' ? lastUserMessageRef : null}
+          >
+            <ChatMessage message={message} />
+          </div>
         ))}
         
         {status === 'streaming' && (
@@ -104,8 +121,8 @@ export function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
       
-      {/* Fixed input at bottom - positioned absolutely within the SidebarInset context */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-10" 
+      {/* Fixed input at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-6 z-10" 
            style={{ marginLeft: 'var(--sidebar-width, 0px)' }}>
         <div className="max-w-4xl mx-auto">
           <Input 
