@@ -11,12 +11,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
   
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-        isUser ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-      }`}>
-        {isUser ? <User size={16} /> : <Bot size={16} />}
-      </div>
-      
       <div className={`flex-1 max-w-[80%] ${isUser ? 'text-right' : 'text-left'}`}>
         <div className={`inline-block p-3 rounded-lg ${
           isUser 
@@ -24,10 +18,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
             : 'bg-gray-100 text-gray-900 rounded-bl-sm'
         }`}>
           <MessageContent message={message} />
-        </div>
-        
-        <div className="text-xs text-gray-500 mt-1 px-1">
-          {new Date().toLocaleTimeString()}
         </div>
       </div>
     </div>

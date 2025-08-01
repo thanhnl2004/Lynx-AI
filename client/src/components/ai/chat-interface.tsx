@@ -85,52 +85,52 @@ export function ChatInterface() {
 
   return (
     <div className="min-h-screen bg-white pb-32">    
-      <div className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center text-gray-500 mt-8">
-            <p>Start a conversation with the AI assistant</p>
-          </div>
-        )}
-        
-        {messages.map((message) => (
-          <div 
-            key={message.id}
-            ref={message.id === lastUserMessage?.id && message.role === 'user' ? lastUserMessageRef : null}
-          >
-            <ChatMessage message={message} />
-          </div>
-        ))}
-        
-        {status === 'streaming' && (
-          <div className="flex justify-end">
-            <button
-              onClick={stop}
-              className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+      <div className="px-4 pt-4 space-y-4">
+        <div className="max-w-4xl mx-auto">
+          {messages.length === 0 && (
+            <div className="text-center text-gray-500 mt-8">
+              <p>Start a conversation with the AI assistant</p>
+            </div>
+          )}
+          
+          {messages.map((message) => (
+            <div 
+              key={message.id}
+              ref={message.id === lastUserMessage?.id && message.role === 'user' ? lastUserMessageRef : null}
+              className="mb-4"
             >
-              Stop generating
-            </button>
-          </div>
-        )}
-        
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-700">Error: {error.message}</p>
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} />
+              <ChatMessage message={message} />
+            </div>
+          ))}
+          
+          {status === 'streaming' && (
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={stop}
+                className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+              >
+                Stop generating
+              </button>
+            </div>
+          )}
+          
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <p className="text-red-700">Error: {error.message}</p>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
       </div>
       
-      {/* Fixed input at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-6 z-10" 
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 z-10" 
            style={{ marginLeft: 'var(--sidebar-width, 0px)' }}>
-        <div className="max-w-4xl mx-auto">
-          <Input 
-            onSendMessage={handleSendMessage}
-            disabled={status === 'streaming'}
-            isLoading={status === 'streaming'}
-          />
-        </div>
+        <Input 
+          onSendMessage={handleSendMessage}
+          disabled={status === 'streaming'}
+          isLoading={status === 'streaming'}
+        />
       </div>
     </div>
   );
