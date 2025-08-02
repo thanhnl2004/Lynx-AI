@@ -124,7 +124,7 @@ export function ChatInterface() {
         </div>
       </div>
       
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 z-10" 
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-6 z-10" 
            style={{ marginLeft: 'var(--sidebar-width, 0px)' }}>
         <Input 
           onSendMessage={handleSendMessage}

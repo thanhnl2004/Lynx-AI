@@ -1,5 +1,4 @@
 import { UIMessage } from 'ai';
-import { User, Bot } from 'lucide-react';
 import { MessageContent } from '@/components/ai/message-content';
 
 interface ChatMessageProps {
