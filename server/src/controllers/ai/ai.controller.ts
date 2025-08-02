@@ -1,12 +1,18 @@
-import { streamText, convertToModelMessages } from "ai";
+import { streamText, convertToModelMessages, UIMessage } from "ai";
 import { google } from "@ai-sdk/google";
 import aiService from "../../services/ai/ai.service.js";
 import { Request, Response } from "express";
 
+interface ChatRequest extends Request {
+  body: {
+    messages: UIMessage[];
+    userId?: string;
+  };
+}
 
-export const getAIResponse = async (req: Request, res: Response) => {
+export const getAIResponse = async (req: ChatRequest, res: Response) => {
   try {
-    const { messages } = req.body;
+    const { messages, userId = 'default-user-id' } = req.body;
 
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Messages array is required' });
