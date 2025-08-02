@@ -4,16 +4,23 @@ import { useChat } from '@ai-sdk/react';
 import { ChatMessage } from './chat-message';
 import { Input } from '@/components/ai/chat-input';
 import { useEffect, useRef } from 'react';
-import { DefaultChatTransport } from 'ai';
+import { DefaultChatTransport, UIMessage } from 'ai';
+import { useAuth } from '@/components/contexts/auth-context';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAutoScrollingRef = useRef(true);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
+  
+  const { user } = useAuth(); // Get user from context
 
   const { messages, sendMessage, status, error, stop } = useChat({
     transport: new DefaultChatTransport({
       api: `${process.env.SERVER_URL ?? 'http://localhost:4000'}/api/chat`,
+      body: (messages: UIMessage[]) => ({
+        messages,
+        userId: user?.id,
+      }),
     }),
   });
 

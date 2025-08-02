@@ -14,31 +14,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  conversations Conversation[]
-}
-
 model Conversation {
-    id        String   @id @default(uuid())
-    title     String
-    userId    String
-    user      User     @relation(fields: [userId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    messages  Message[]
+  id        String    @id @default(uuid())
+  title     String?   // Optional title for the conversation
+  userId    String    // Just store the Supabase user ID as a string
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Message {
-    id        String   @id @default(uuid())
-    content   String
-    role      String // user or assistant
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    conversationId String
-    conversation Conversation @relation(fields: [conversationId], references: [id])
+  id             String       @id @default(uuid())
+  content        String
+  role           String       // 'user' or 'assistant'
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 

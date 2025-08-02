@@ -1,5 +1,4 @@
-import db from "../db/db.service";
-import type { UIMessage } from "ai"
+import db from "./db.service.js";
 import { PrismaClient } from "@prisma/client";
 
 class ConversationService {
@@ -40,7 +39,6 @@ class ConversationService {
       } }
     });
   }
-  
 }
 
 const conversationService = new ConversationService();
