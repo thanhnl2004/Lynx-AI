@@ -4,6 +4,21 @@ import { PrismaClient } from "@prisma/client";
 class ConversationService {
   private db: PrismaClient = db.getClient();
 
+  async getConversationsByUserId(userId: string) {
+    return await this.db.conversation.findMany({
+      where: {userId},
+      include: {
+        messages: {
+          orderBy: {createdAt: 'asc'},
+          take: 1
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    })
+  }
+
   async createConversation(userId: string, title?: string) {
     const conversation = await this.db.conversation.create({
       data: {
@@ -32,11 +47,13 @@ class ConversationService {
   async getConversationWithMessages(conversationId: string) {
     return await this.db.conversation.findUnique({
       where: { id: conversationId },
-      include: { messages: {
-        orderBy: {
-          createdAt: 'asc'
+      include: { 
+        messages: {
+          orderBy: {
+            createdAt: 'asc'
+          }
         }
-      } }
+      }
     });
   }
 }
