@@ -51,7 +51,7 @@ export const Input = ({
             <span className="text-sm font-medium">Search</span>
           </div>
           <button className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors">
-            <span className="text-sm font-medium">GPT-4</span>
+            <span className="text-sm font-medium">Gemini-2.0-Flash</span>
             <ChevronDown size={16} />
           </button>
         </div>

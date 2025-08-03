@@ -26,18 +26,22 @@ export const getAIResponse = async (req: AuthenticatedRequest, res: Response) =>
 
     // save the latest message to the conversation
     const latestMessage = messages[messages.length - 1];
-    if (latestMessage && latestMessage.role === 'user') {
+    if (latestMessage.role === 'user') {
+      // Narrow in on only the text parts
+      const textParts = latestMessage.parts
+        .filter((p): p is { type: 'text'; text: string } => p.type === 'text');
+    
+      const userPrompt = textParts.map(p => p.text).join('');
+    
       await conversationService.saveMessage(
         conversation.id,
-        latestMessage.parts.join(''),
-        latestMessage.role
-      )
+        userPrompt,
+        'user'
+      );
     }
-
     let aiResponseContent = '';
-    // const result = aiService.generateResponse(messages);
 
-    const result = aiService.generateResponseWithCallbacks(messages, {
+    const result = aiService.generateResponse(messages, {
       onTextChunk: (text) => {
         aiResponseContent += text;
       },
