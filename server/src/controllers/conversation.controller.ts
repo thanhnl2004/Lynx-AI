@@ -50,4 +50,20 @@ const getConversationWithMessages = async (req: GetConversationWithMessagesReque
 
 }
 
-export { getConversations, getConversationWithMessages };
+const createConversation = async (req: Request, res: Response) => {
+  const { userId, title } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ error: 'User ID is required' });
+  }
+
+  try {
+    const conversation = await conversationService.createConversation(userId, title);
+    res.status(201).json(conversation);
+  } catch (error) {
+    console.error('Error creating conversation:', error);
+    res.status(500).json({ error: 'Failed to create conversation' });
+  }
+}
+
+export { getConversations, getConversationWithMessages, createConversation };
