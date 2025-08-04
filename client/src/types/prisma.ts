@@ -1,4 +1,23 @@
-import type { Message, Conversation } from '../../../server/generated/types';
+import { z } from 'zod';
 
-export type { Message, Conversation };
+export const messageSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  role: z.enum(['user', 'assistant']),
+  conversationID: z.string(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export const conversationSchema = z.object({
+  id: z.string(),
+  title: z.string().nullable(),
+  userId: z.string(),
+  messages: z.array(messageSchema).optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export type Message = z.infer<typeof messageSchema>;
+export type Conversation = z.infer<typeof conversationSchema>;
 

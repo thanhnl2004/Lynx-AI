@@ -2,6 +2,9 @@ import db from "./db.service.js";
 import { PrismaClient } from "@prisma/client";
 
 class ConversationService {
+  /**
+   * @Service for managing conversations and messages.
+   */
   private db: PrismaClient = db.getClient();
 
   async getConversationsByUserId(userId: string) {
