@@ -19,13 +19,11 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
   const isAutoScrollingRef = useRef(true);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
-  // state + ref for the active conversation ID
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(
     initialId ?? null
   );
   const convIdRef = useRef<string | null>(initialId ?? null);
 
-  // keep ref in sync if the prop ever changes
   useEffect(() => {
     if (initialId && initialId !== currentConversationId) {
       setCurrentConversationId(initialId);
@@ -44,13 +42,11 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
       body: (outgoing: CustomUIMessage[]) => ({
         messages: outgoing,
         userId: user?.id,
-        // Read immediately from the ref
         conversationId: convIdRef.current,
       }),
     }),
   });
 
-  // Load existing messages from your backend into the SDK
   useEffect(() => {
     if (conversation?.messages?.length) {
       const uiMessages = convertPrismaMessagesToUIMessages(conversation.messages);
@@ -58,7 +54,6 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
     }
   }, [conversation, setMessages]);
 
-  // Auto-scroll helpers
   const scrollToBottom = () => {
     if (messagesEndRef.current && isAutoScrollingRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -70,7 +65,6 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
     }
   };
 
-  // Scroll when messages change
   useEffect(() => {
     if (isAutoScrollingRef.current && status !== "streaming") {
       const id = setTimeout(scrollToBottom, 10);
@@ -78,7 +72,6 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
     }
   }, [messages, status]);
 
-  // Track manual scroll to toggle auto-scroll
   useEffect(() => {
     const onScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -90,25 +83,20 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Send a new message (and create the conversation first if needed)
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
 
-    // remember scroll position
     const wasScrolledUp = !isAutoScrollingRef.current;
 
-    // Create conversation if this is the first message
     if (!convIdRef.current) {
       const newConv = await createConversation.mutateAsync(text);
       setCurrentConversationId(newConv.id);
-      convIdRef.current = newConv.id;              // 🔑 write to ref immediately
+      convIdRef.current = newConv.id;             
       router.push(`/chat/${newConv.id}`);
     }
 
-    // Now that convIdRef.current is correct, the SDK will use it
     sendMessage({ text });
 
-    // restore scroll behavior
     if (wasScrolledUp) {
       isAutoScrollingRef.current = false;
       setTimeout(scrollToLastUserMessage, 100);
@@ -117,7 +105,6 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
     }
   };
 
-  // Find the last user message so we can scroll to it if needed
   const lastUserMessage = messages.filter((m) => m.role === "user").slice(-1)[0];
 
   return (

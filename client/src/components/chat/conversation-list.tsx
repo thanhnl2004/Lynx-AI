@@ -50,7 +50,7 @@ export function ConversationList() {
             <SidebarMenuItem key={conversation.id}>
               <SidebarMenuButton 
                 onClick={() => handleConversationClick(conversation.id)}
-                className={isActive ? 'bg-gray-100' : ''}
+                className={isActive ? 'bg-gray-200' : ''}
               >
                 <MessageSquare size={16} />
                 <span className="truncate">

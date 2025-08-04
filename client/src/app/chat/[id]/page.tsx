@@ -11,10 +11,11 @@ interface ChatPageProps {
 export default async function ChatPage({ params }: ChatPageProps) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const { id } = await params;
 
   if (!user) {
     redirect('/login');
   }
 
-  return <ChatInterface conversationId={params.id} />;
+  return <ChatInterface conversationId={id} />;
 }
