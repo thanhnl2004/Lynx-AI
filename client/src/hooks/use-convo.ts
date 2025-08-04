@@ -19,7 +19,7 @@ import { api } from "@/utils/api";
 //   updatedAt: string;
 // }
 
-export const useConversations = () => {
+export const useGetConversations = () => {
   const { user } = useAuth();
   return useQuery({
     queryKey: ['conversations'],
@@ -33,7 +33,7 @@ export const useConversations = () => {
   })
 }
 
-export const useConversation = (conversationId: string | null) => {
+export const useGetConversationById = (conversationId: string | null) => {
   const { user } = useAuth();
   return useQuery({
     queryKey: ['conversation', conversationId],

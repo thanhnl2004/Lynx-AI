@@ -15,6 +15,7 @@ import {
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
+import { ConversationList } from "@/components/chat/conversation-list";
 import {
   Sidebar,
   SidebarContent,
@@ -164,8 +165,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={userData} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavProjects projects={data.projects} /> */}
+        <ConversationList />
       </SidebarContent>
       <SidebarFooter>
         {/* <TeamSwitcher teams={data.teams} /> */}

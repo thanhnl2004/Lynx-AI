@@ -43,7 +43,9 @@ export const validateSupabaseMessage = (data: unknown): SupabaseMessage => {
 };
 
 export function convertPrismaMessageToUIMessage(message: Message): CustomUIMessage {
-  return {
+  console.log('Converting Prisma message:', message);
+  
+  const uiMessage = {
     id: message.id,
     role: message.role as 'user' | 'assistant',
     parts: [
@@ -54,12 +56,23 @@ export function convertPrismaMessageToUIMessage(message: Message): CustomUIMessa
     ],
     metadata: {
       conversationId: message.conversationId,
-      createdAt: message.createdAt.toISOString(),
-      updatedAt: message.updatedAt.toISOString(),
+      // Handle both Date objects and strings
+      createdAt: typeof message.createdAt === 'string' 
+        ? message.createdAt 
+        : message.createdAt.toISOString(),
+      updatedAt: typeof message.updatedAt === 'string' 
+        ? message.updatedAt 
+        : message.updatedAt.toISOString(),
     },
   };
+  
+  console.log('Converted to UIMessage:', uiMessage);
+  return uiMessage as CustomUIMessage;
 }
 
 export function convertPrismaMessagesToUIMessages(messages: Message[]): CustomUIMessage[] {
-  return messages.map(convertPrismaMessageToUIMessage);
+  console.log('Converting messages array:', messages);
+  const converted = messages.map(convertPrismaMessageToUIMessage);
+  console.log('Converted messages array:', converted);
+  return converted;
 }

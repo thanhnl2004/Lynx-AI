@@ -2,17 +2,19 @@ import { UIMessage } from "ai";
 import aiService from "../services/ai.service.js";
 import { Request, Response } from "express";
 import conversationService from "../services/conversation.service.js";
+import { Conversation } from "../../generated/prisma/index.js";
 
 interface AuthenticatedRequest extends Request {
   body: {
     messages: UIMessage[];
-    userId: string;  // Add userId to the body type
+    userId: string;  
+    conversationId?: string;
   }
 }
 
 export const getAIResponse = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { messages, userId } = req.body;
+    const { messages, userId, conversationId } = req.body;
 
     if (!userId) {
       return res.status(401).json({ error: 'User ID is required' });
@@ -22,22 +24,31 @@ export const getAIResponse = async (req: AuthenticatedRequest, res: Response) =>
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    const conversation = await conversationService.getOrCreateConversation(userId);
+    let conversation: Conversation | null;
 
-    // save the latest message to the conversation
+    if (conversationId) {
+      conversation = await conversationService.getConversationWithMessages(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ error: 'Conversation not found' });
+      }
+    } else {
+      conversation = await conversationService.getOrCreateConversation(userId);
+    }
+
     const latestMessage = messages[messages.length - 1];
     if (latestMessage.role === 'user') {
-      // Narrow in on only the text parts
       const textParts = latestMessage.parts
         .filter((p): p is { type: 'text'; text: string } => p.type === 'text');
     
       const userPrompt = textParts.map(p => p.text).join('');
     
-      await conversationService.saveMessage(
-        conversation.id,
-        userPrompt,
-        'user'
-      );
+      if (conversation) {
+        await conversationService.saveMessage(
+          conversation.id,
+          userPrompt,
+          'user'
+        );
+      }
     }
     let aiResponseContent = '';
 
@@ -47,12 +58,14 @@ export const getAIResponse = async (req: AuthenticatedRequest, res: Response) =>
       },
       onFinish: async () => {
         try {
-          await conversationService.saveMessage(
-            conversation.id,
-            aiResponseContent,
-            'assistant'
-          )
-          console.log(`Saved AI response to conversation: ${conversation.id}`);
+          if (conversation) {
+            await conversationService.saveMessage(
+              conversation.id,
+              aiResponseContent,
+              'assistant'
+            )
+            console.log(`Saved AI response to conversation: ${conversation.id}`);
+          }
         } catch (error) {
           console.error('Error saving AI response:', error);
         }

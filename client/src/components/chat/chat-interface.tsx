@@ -4,11 +4,11 @@ import { useChat } from '@ai-sdk/react';
 import { ChatMessage } from './chat-message';
 import { Input } from '@/components/chat/chat-input';
 import { useEffect, useRef, useState } from 'react';
-import { DefaultChatTransport, UIMessage } from 'ai';
+import { DefaultChatTransport } from 'ai';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
-import { useConversation, useCreateConversation } from '@/hooks/use-conversations';
-
+import { useGetConversationById, useCreateConversation } from '@/hooks/use-convo';
+import { CustomUIMessage, convertPrismaMessagesToUIMessages } from '@/types/message';
 interface ChatInterfaceProps {
   conversationId: string;
 }
@@ -23,35 +23,27 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
   const router = useRouter();
   const createConversation = useCreateConversation();
 
-  const { data: conversation, isLoading: isLoadingConversation } = useConversation(
-    conversationId || null
-  ) 
+  const { data: conversation } = useGetConversationById(currentConversationId);
 
-  const { messages, sendMessage, status, error, stop, setMessages } = useChat({
+  const { messages, sendMessage, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: `${process.env.SERVER_URL ?? 'http://localhost:4000'}/api/chat`,
-      body: (messages: UIMessage[]) => ({
+      body: (messages: CustomUIMessage[]) => ({
         messages,
         userId: user?.id,
-        conversationId: currentConversationId,
+        conversationId: conversationId,
       }),
     }),
   });
 
   useEffect(() => {
     if (conversation?.messages && conversation.messages.length > 0) {
-      const formattedMessages = conversation.messages.map((message) => ({
-        id: message.id,
-        content: message.content,
-        role: message.role,
-      }))
+      const uiMessages = convertPrismaMessagesToUIMessages(conversation.messages);
 
-      setMessages(formattedMessages);
+      setMessages(uiMessages);
     }
-
   }, [conversation, setMessages])
 
-  // Scroll to bottom function
   const scrollToBottom = () => {
     if (messagesEndRef.current && isAutoScrollingRef.current) {
       messagesEndRef.current.scrollIntoView({ 
@@ -61,7 +53,6 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
     }
   };
 
-  // Scroll to last user message function
   const scrollToLastUserMessage = () => {
     if (lastUserMessageRef.current) {
       lastUserMessageRef.current.scrollIntoView({ 
@@ -71,16 +62,13 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
     }
   };
 
-  // Auto-scroll when messages change (but not during streaming)
   useEffect(() => {
     if (isAutoScrollingRef.current && status !== 'streaming') {
-      // Small delay to ensure DOM is updated
       const timeoutId = setTimeout(scrollToBottom, 10);
       return () => clearTimeout(timeoutId);
     }
   }, [messages, status]);
 
-  // Window scroll detection
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -95,26 +83,31 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = async (message: string) => {
     if (message.trim()) {
-      // If user was scrolled up, we want to scroll to the new message instead of bottom
       const wasScrolledUp = !isAutoScrollingRef.current;
+
+      if (!currentConversationId) {
+        try {
+          const newConversation = await createConversation.mutateAsync(message);
+          setCurrentConversationId(newConversation.id);
+          router.push(`/chat/${newConversation.id}`);
+        } catch (error) {
+          console.error('Error creating conversation:', error);
+        }
+      }
       
       sendMessage({ text: message });
       
       if (wasScrolledUp) {
-        // Don't auto-scroll to bottom, instead scroll to the new user message
         isAutoScrollingRef.current = false;
-        // Scroll to new user message after a short delay to ensure it's rendered
         setTimeout(scrollToLastUserMessage, 100);
       } else {
-        // Normal behavior - scroll to bottom
         isAutoScrollingRef.current = true;
       }
     }
   };
 
-  // Get the last user message for scrolling reference
   const lastUserMessage = messages.filter(m => m.role === 'user').slice(-1)[0];
 
   return (
@@ -136,17 +129,6 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
               <ChatMessage message={message} status={status} />
             </div>
           ))}
-          
-          {/* {status === 'streaming' && (
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={stop}
-                className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-              >
-                Stop generating
-              </button>
-            </div>
-          )} */}
           
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
