@@ -1,6 +1,7 @@
-import { ChatInterface } from '@/components/ai/chat-interface';
-import LandingPage from '@/components/home/landing-page';
+import { ChatInterface } from '@/components/chat/chat-interface';
+import LandingPage from '@/components/landing/landing-page';
 import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
 
 export default async function Home() {
   const supabase = await createClient();
@@ -10,5 +11,5 @@ export default async function Home() {
     return <LandingPage />
   }
 
-  return <ChatInterface />;
+  return redirect('/chat/new');
 }
