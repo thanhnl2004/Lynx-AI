@@ -1,4 +1,5 @@
 import { UIMessage } from 'ai';
+import { MemoizedMarkdown } from '@/components/chat/memoized-markdown';
 
 interface MessageContentProps {
   message: UIMessage;
@@ -7,12 +8,14 @@ interface MessageContentProps {
 export function MessageContent({ message }: MessageContentProps) {
   return (
     <div className="whitespace-pre-wrap">
-      {message.parts.map((part, index) => {
+      {message.parts.map((part) => {
         if (part.type === 'text') {
           return (
-            <span key={index}>
-              {part.text}
-            </span>
+            <MemoizedMarkdown 
+              content={part.text} 
+              id={message.id}
+              key={`${message.id}-text`} 
+            />
           );
         }
         
