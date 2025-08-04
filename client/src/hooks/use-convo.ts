@@ -59,5 +59,21 @@ export const useCreateConversation = () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     }
   })
+}
 
+export const useRenameConversation = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationKey: ['renameConversation'],
+    mutationFn: async ({ conversationId, newTitle }: { conversationId: string; newTitle: string }) => {
+      if (!user?.id) throw new Error('User not authenticated');
+      return api.put(`/api/conversations/${conversationId}/rename`, { newTitle });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversation'] });
+    }
+  })
 }

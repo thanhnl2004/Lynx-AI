@@ -120,3 +120,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+button, 
+[role="button"], 
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Specifically for shadcn button components */
+[data-slot="button"] {
+  cursor: pointer;
+}
+
+/* For disabled buttons */
+button:disabled,
+[role="button"]:disabled,
+[data-slot="button"]:disabled {
+  cursor: not-allowed;
+}

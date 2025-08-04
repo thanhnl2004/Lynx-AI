@@ -66,4 +66,23 @@ const createConversation = async (req: Request, res: Response) => {
   }
 }
 
-export { getConversations, getConversationWithMessages, createConversation };
+const renameConversation = async(req: Request, res: Response) => {
+  const { conversationId } = req.params;
+  const { newTitle } = req.body;
+
+  if (!conversationId) {
+    console.log(`convo id: ${conversationId}`);
+    return res.status(401).json({ error: 'Conversation ID doesn\'t exist'});
+  }
+
+  try {
+    const updatedConversation = await conversationService.renameConversation(conversationId, newTitle as string);
+    res.status(200).json(updatedConversation);
+  } catch (error) {
+    console.error('Error renaming conversation:', error);
+    res.status(500).json({ error: 'Failed to rename conversation' });
+  }
+
+}
+
+export { getConversations, getConversationWithMessages, createConversation, renameConversation };

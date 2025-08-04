@@ -1,24 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Figtree } from "next/font/google";
 import "@/styles/globals.css";
 import { createClient } from "@/utils/supabase/server";
 import { AuthProvider } from "@/contexts/auth-context";
 import { SidebarLayout } from "@/layouts/sidebar-layout";
 import { QueryProvider } from "@/providers/query-provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const font = Figtree({
+  weight: ['400'],
+  subsets: ['latin'],
+  display: 'auto',
+})
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "Lynx Agent",
-  description: "Lynx Agent",
+  title: "Lynx AI",
+  description: "An AI that creates agentic workflows with your favourite tools.",
 };
 
 export default async function RootLayout({
@@ -34,7 +31,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${font.className}`}
       >
         <QueryProvider>
           <AuthProvider user={user}>

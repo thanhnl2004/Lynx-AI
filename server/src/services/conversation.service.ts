@@ -12,7 +12,7 @@ class ConversationService {
       where: {userId},
       include: {
         messages: {
-          orderBy: {createdAt: 'asc'},
+          orderBy: { createdAt: 'asc' },
           take: 1
         }
       },
@@ -58,6 +58,14 @@ class ConversationService {
         }
       }
     });
+  }
+
+  async renameConversation(conversationId: string, newTitle: string) {
+    return await this.db.conversation.update({
+      where: { id: conversationId},
+      data: { title: newTitle }
+    })
+
   }
 }
 
