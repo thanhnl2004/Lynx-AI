@@ -1,6 +1,7 @@
 "use client";
 
 import { NavUser } from "@/components/sidebar/nav-user";
+import { TeamSwitcher } from "@/components/sidebar/team-switcher";
 import { ConversationList } from "@/components/chat/conversation-list";
 import {
   Sidebar,
@@ -24,13 +25,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <NavUser user={userData} />
+        <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <ConversationList />
       </SidebarContent>
       <SidebarFooter>
-        {/* <TeamSwitcher teams={data.teams} /> */}
+        <NavUser user={userData} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

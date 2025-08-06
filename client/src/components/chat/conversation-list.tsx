@@ -2,7 +2,7 @@
 
 import { useGetConversations, useRenameConversation } from '@/hooks/use-convo';
 import { useRouter, usePathname } from 'next/navigation';
-import { MessageSquare, Plus, Edit2, Check, X } from 'lucide-react';
+import { MessageSquare, Plus, Edit2, Check, X, EllipsisVertical } from 'lucide-react';
 import { useState } from 'react';
 import {
   SidebarGroup,
@@ -137,7 +137,7 @@ export function ConversationList() {
                   onClick={() => startEditing(conversation)}
                   showOnHover
                 >
-                  <Edit2 size={12} />
+                  <EllipsisVertical size={12} />
                 </SidebarMenuAction>
               )}
             </SidebarMenuItem>

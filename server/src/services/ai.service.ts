@@ -34,6 +34,9 @@ class AIService {
               callbacks.onTextChunk(chunk.text);
             }
           },
+          tools: {
+
+          },
           onFinish: callbacks.onFinish
         })
 
