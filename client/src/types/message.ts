@@ -59,10 +59,10 @@ export function convertPrismaMessageToUIMessage(message: Message): CustomUIMessa
       // Handle both Date objects and strings
       createdAt: typeof message.createdAt === 'string' 
         ? message.createdAt 
-        : message.createdAt.toISOString(),
+        : (message.createdAt as Date).toISOString(),
       updatedAt: typeof message.updatedAt === 'string' 
         ? message.updatedAt 
-        : message.updatedAt.toISOString(),
+        : (message.updatedAt as Date).toISOString(),
     },
   };
   

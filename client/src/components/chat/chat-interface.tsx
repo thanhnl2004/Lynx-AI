@@ -6,8 +6,9 @@ import { Input } from "@/components/chat/chat-input";
 import { useEffect, useRef } from "react";
 import { DefaultChatTransport } from "ai";
 import { useAuth } from "@/contexts/auth-context";
-import { useGetConversationById } from "@/hooks/use-convo";
+import { useGetConversationById, useCreateConversation } from "@/hooks/use-convo";
 import { CustomUIMessage, convertPrismaMessagesToUIMessages } from "@/types/message";
+import { useRouter } from "next/navigation";
 
 interface ChatInterfaceProps {
   conversationId: string;
@@ -18,8 +19,10 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
   const isAutoScrollingRef = useRef(true);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
+  const router = useRouter();
   const { user } = useAuth();
-  const { data: conversation } = useGetConversationById(conversationId);
+  const { data: conversation } = useGetConversationById(conversationId || null);
+  const createConversation = useCreateConversation();
 
   const { messages, sendMessage, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({
@@ -27,7 +30,7 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
       body: (outgoing: CustomUIMessage[]) => ({
         messages: outgoing,
         userId: user?.id,
-        conversationId, 
+        conversationId,
       }),
     }),
   });
@@ -39,6 +42,17 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
       setMessages(uiMessages);
     }
   }, [conversation, setMessages, messages.length]);
+
+  // If we navigated after creating a conversation, auto-send the pending message once
+  useEffect(() => {
+    if (conversationId) {
+      const pending = sessionStorage.getItem("pendingMessage");
+      if (pending) {
+        sessionStorage.removeItem("pendingMessage");
+        sendMessage({ text: pending });
+      }
+    }
+  }, [conversationId, sendMessage]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current && isAutoScrollingRef.current) {
@@ -69,8 +83,27 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const makeTitle = (text: string) => {
+    const firstLine = text.trim().split('\n')[0];
+    const compact = firstLine.replace(/\s+/g, ' ').trim();
+    const limited = compact.slice(0, 60);
+    return limited || "New Chat";
+  }
+
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
+
+    // First message: create a conversation, stash the message, then navigate
+    if (!conversationId) {
+      try {
+        const newConvo = await createConversation.mutateAsync(makeTitle(text));
+        sessionStorage.setItem("pendingMessage", text);
+        router.push(`/chat/${newConvo.id}`);
+      } catch (e) {
+        console.error("Failed to create conversation:", e);
+      }
+      return;
+    }
 
     const wasScrolledUp = !isAutoScrollingRef.current;
 
@@ -99,9 +132,7 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
           {messages.map((message) => (
             <div
               key={message.id}
-              ref={message.id === lastUserMessage?.id && message.role === "user"
-                ? lastUserMessageRef
-                : null}
+              ref={message.id === lastUserMessage?.id && message.role === "user" ? lastUserMessageRef : null}
               className="mb-4"
             >
               <ChatMessage message={message} status={status} />
@@ -118,14 +149,11 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
         </div>
       </div>
 
-      <div
-        className="fixed bottom-0 left-0 right-0 bg-white p-6 z-10"
-        style={{ marginLeft: "var(--sidebar-width, 0px)" }}
-      >
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-6 z-10" style={{ marginLeft: "var(--sidebar-width, 0px)" }}>
         <Input
           onSendMessage={handleSendMessage}
-          disabled={status === "streaming"}
-          isLoading={status === "streaming"}
+          disabled={status === "streaming" || createConversation.isPending}
+          isLoading={status === "streaming" || createConversation.isPending}
         />
       </div>
     </div>
