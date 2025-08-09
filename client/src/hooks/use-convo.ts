@@ -17,7 +17,7 @@ import { api } from "@/utils/api";
 //   messages: Message[];
 //   createdAt: string;
 //   updatedAt: string;
-// }
+// }  
 
 export const useGetConversations = () => {
   const { user } = useAuth();

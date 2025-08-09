@@ -4,7 +4,7 @@ export const messageSchema = z.object({
   id: z.string(),
   content: z.string(),
   role: z.enum(['user', 'assistant']),
-  conversationID: z.string(),
+  conversationId: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

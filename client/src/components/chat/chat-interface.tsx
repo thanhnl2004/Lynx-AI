@@ -3,38 +3,23 @@
 import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "./chat-message";
 import { Input } from "@/components/chat/chat-input";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { DefaultChatTransport } from "ai";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
-import { useGetConversationById, useCreateConversation } from "@/hooks/use-convo";
+import { useGetConversationById } from "@/hooks/use-convo";
 import { CustomUIMessage, convertPrismaMessagesToUIMessages } from "@/types/message";
 
 interface ChatInterfaceProps {
   conversationId: string;
 }
 
-export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps) {
+export function ChatInterface({ conversationId }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAutoScrollingRef = useRef(true);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(
-    initialId ?? null
-  );
-  const convIdRef = useRef<string | null>(initialId ?? null);
-
-  useEffect(() => {
-    if (initialId && initialId !== currentConversationId) {
-      setCurrentConversationId(initialId);
-      convIdRef.current = initialId;
-    }
-  }, [initialId, currentConversationId]);
-
   const { user } = useAuth();
-  const router = useRouter();
-  const createConversation = useCreateConversation();
-  const { data: conversation } = useGetConversationById(currentConversationId);
+  const { data: conversation } = useGetConversationById(conversationId);
 
   const { messages, sendMessage, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({
@@ -42,17 +27,18 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
       body: (outgoing: CustomUIMessage[]) => ({
         messages: outgoing,
         userId: user?.id,
-        conversationId: convIdRef.current,
+        conversationId, 
       }),
     }),
   });
 
+  // Hydrate only when local useChat state is empty
   useEffect(() => {
-    if (conversation?.messages?.length) {
+    if (conversation?.messages && messages.length === 0) {
       const uiMessages = convertPrismaMessagesToUIMessages(conversation.messages);
       setMessages(uiMessages);
     }
-  }, [conversation, setMessages]);
+  }, [conversation, setMessages, messages.length]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current && isAutoScrollingRef.current) {
@@ -87,13 +73,6 @@ export function ChatInterface({ conversationId: initialId }: ChatInterfaceProps)
     if (!text.trim()) return;
 
     const wasScrolledUp = !isAutoScrollingRef.current;
-
-    if (!convIdRef.current) {
-      const newConv = await createConversation.mutateAsync(text);
-      setCurrentConversationId(newConv.id);
-      convIdRef.current = newConv.id;             
-      router.push(`/chat/${newConv.id}`);
-    }
 
     sendMessage({ text });
 

@@ -2,7 +2,7 @@
 
 import { useGetConversations, useRenameConversation } from '@/hooks/use-convo';
 import { useRouter, usePathname } from 'next/navigation';
-import { MessageSquare, Plus, Edit2, Check, X, EllipsisVertical } from 'lucide-react';
+import { MessageSquare, Plus, Check, X, EllipsisVertical } from 'lucide-react';
 import { useState } from 'react';
 import {
   SidebarGroup,
@@ -26,7 +26,7 @@ export function ConversationList() {
   const [editingTitle, setEditingTitle] = useState('');
 
   const handleNewChat = () => {
-    router.push('/chat/new');
+    router.push('/');
   };
 
   const handleConversationClick = (conversationId: string) => {
