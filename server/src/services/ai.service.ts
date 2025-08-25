@@ -1,6 +1,7 @@
 import { streamText, convertToModelMessages } from "ai";
 import { google } from "@ai-sdk/google";
 import { UIMessage } from "ai";
+import agentService from "./agent.service";
 
 interface AICallbacks {
   onTextChunk?: (text: string) => void;
@@ -19,12 +20,26 @@ class AIService {
         this.model = model;
     }
 
-    generateResponse(messages: UIMessage[], callbacks: AICallbacks) {
+    async generateResponse(
+      messages: UIMessage[], 
+      callbacks: AICallbacks, 
+      userEmail?: string
+    ) {
       if (!messages || !Array.isArray(messages)) {
         throw new Error('Messages array is required');
       }
 
       try {
+        let tools = {};
+        try {
+          if (userEmail) {
+            const composioTools = await agentService.getTools(userEmail, "GMAIL_SEND_EMAIL");
+            tools = composioTools;
+          }
+        } catch (error) {
+          console.error('Error fetching composio tools:', error);
+        }
+        
         const result = streamText({
           model: this.model,
           messages: convertToModelMessages(messages),
@@ -34,9 +49,7 @@ class AIService {
               callbacks.onTextChunk(chunk.text);
             }
           },
-          tools: {
-
-          },
+          tools,
           onFinish: callbacks.onFinish
         })
 
