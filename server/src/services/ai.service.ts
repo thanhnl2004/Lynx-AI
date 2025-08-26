@@ -1,7 +1,7 @@
 import { streamText, convertToModelMessages } from "ai";
 import { google } from "@ai-sdk/google";
 import { UIMessage } from "ai";
-import agentService from "./agent.service";
+import composioService from "./composio.service.js";
 
 interface AICallbacks {
   onTextChunk?: (text: string) => void;
@@ -10,9 +10,7 @@ interface AICallbacks {
 
 class AIService {
   /**
-   * Generate AI response stream
-   * @param {Array} messages - Array of conversation messages
-   * @returns {Promise} - Stream result from AI model
+   * @description Generate AI response stream
    */
     private model;
 
@@ -23,7 +21,7 @@ class AIService {
     async generateResponse(
       messages: UIMessage[], 
       callbacks: AICallbacks, 
-      userEmail?: string
+      userId?: string
     ) {
       if (!messages || !Array.isArray(messages)) {
         throw new Error('Messages array is required');
@@ -32,8 +30,8 @@ class AIService {
       try {
         let tools = {};
         try {
-          if (userEmail) {
-            const composioTools = await agentService.getTools(userEmail, "GMAIL_SEND_EMAIL");
+          if (userId) {
+            const composioTools = await composioService.getTools(userId, "GMAIL_SEND_EMAIL");
             tools = composioTools;
           }
         } catch (error) {
@@ -51,7 +49,7 @@ class AIService {
           },
           tools,
           onFinish: callbacks.onFinish
-        })
+        });
 
         return result;
       } catch (error) {

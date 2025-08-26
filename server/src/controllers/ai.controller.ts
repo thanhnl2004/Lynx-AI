@@ -52,7 +52,7 @@ export const getAIResponse = async (req: AuthenticatedRequest, res: Response) =>
     }
     let aiResponseContent = '';
 
-    const result = aiService.generateResponse(messages, {
+    const result = await aiService.generateResponse(messages, {
       onTextChunk: (text) => {
         aiResponseContent += text;
       },
@@ -70,7 +70,7 @@ export const getAIResponse = async (req: AuthenticatedRequest, res: Response) =>
           console.error('Error saving AI response:', error);
         }
       }
-    })
+    }, userId);
     
     result.pipeUIMessageStreamToResponse(res);
 
