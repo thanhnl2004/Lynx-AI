@@ -17,8 +17,8 @@
   "description": "",
   "dependencies": {
     "@ai-sdk/google": "^2.0.0",
-    "@composio/core": "^0.1.36",
-    "@composio/vercel": "^0.1.36",
+    "@composio/core": "^0.1.47",
+    "@composio/vercel": "^0.2.3",
     "@prisma/client": "^6.11.1",
     "@supabase/supabase-js": "^2.50.4",
     "ai": "^5.0.0",
