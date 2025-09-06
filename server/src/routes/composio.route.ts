@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { initiateConnection, getConnectionStatus } from "../controllers/composio.controller.js";
+import composioController from "../controllers/composio.controller.js";
 
 const router = Router();
 
-router.post("/api/composio/connect", initiateConnection);
-router.get("/api/composio/status", getConnectionStatus);
+router.post("/api/composio/connect", composioController.initiateConnection);
+router.get("/api/composio/status", composioController.checkConnectionStatus);
+router.delete("/api/composio/delete", composioController.deleteConnection);
 
 export default router;

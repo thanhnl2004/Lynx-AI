@@ -41,7 +41,12 @@ class AIService {
         const result = streamText({
           model: this.model,
           messages: convertToModelMessages(messages),
-          system: 'You are a helpful AI assistant.',
+          system: `
+            You are a helpful AI assistant.
+            You can send emails via Gmail using the GMAIL_SEND_EMAIL tool when appropriate.
+            Ask for any missing fields (recipient email, subject, body) before calling the tool.
+            If Gmail is not connected, suggest the user to connect their Gmail account to use the tool.
+          `,
           onChunk: ({chunk}) => {
             if (callbacks.onTextChunk && chunk.type === 'text-delta') {
               callbacks.onTextChunk(chunk.text);

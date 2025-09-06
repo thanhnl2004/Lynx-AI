@@ -20,15 +20,33 @@ class ComposioService {
       authConfigId,
     );
 
-    const redirectUrl = connectionRequest.redirectUrl;
-    console.log(redirectUrl);
+    return connectionRequest;
+  }
 
-    const connectedAccount = await connectionRequest.waitForConnection();
-    return connectedAccount;
+  async checkConnectionStatus(connectionId: string) {
+    const connection = await this.composio.connectedAccounts.waitForConnection(connectionId);
+
+    return connection;
+  }
+  
+  async deleteConnection(connectionId: string) {
+    await this.composio.connectedAccounts.delete(connectionId);
   }
 
   async getTools(userId: string, toolName: string) {
     return await this.composio.tools.get(userId, toolName);
+  }
+
+  async getToolKits(userId: string) {
+    const connectedAccounts = await this.composio.connectedAccounts.list({
+      userIds: [userId],
+    });
+  
+    const connectedToolkitMap = new Map();
+  
+    connectedAccounts.items.forEach(account => {
+      connectedToolkitMap.set(account.toolkit.slug.toUpperCase(), account.id);
+    });
   }
 }
 
