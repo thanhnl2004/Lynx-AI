@@ -1,17 +1,11 @@
 import { Router } from "express";
-import { 
-  createConversation, 
-  getConversations, 
-  getConversationWithMessages,
-  renameConversation
-} from "../controllers/conversation.controller.js";
-import { rename } from "fs";
+import conversationController from "../controllers/conversation.controller.js";
 
 const router = Router();
 
-router.get("/api/conversations", getConversations);
-router.get("/api/conversations/:conversationId", getConversationWithMessages);
-router.post("/api/conversations", createConversation);
-router.put("/api/conversations/:conversationId/rename", renameConversation);
+router.get("/api/conversations", conversationController.getConversations);
+router.get("/api/conversations/:conversationId", conversationController.getConversationWithMessages);
+router.post("/api/conversations", conversationController.createConversation);
+router.put("/api/conversations/:conversationId/rename", conversationController.renameConversation);
 
 export default router;
