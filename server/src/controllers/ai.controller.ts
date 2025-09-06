@@ -11,76 +11,87 @@ interface AuthenticatedRequest extends Request {
     conversationId?: string;
   }
 }
+class AIController {
+  private aiService: typeof aiService;
+  private conversationService: typeof conversationService;
 
-export const getAIResponse = async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { messages, userId, conversationId } = req.body;
+  constructor() {
+    this.aiService = aiService;
+    this.conversationService = conversationService;
+  }
 
-    if (!userId) {
-      return res.status(401).json({ error: 'User ID is required' });
-    }
+  async getAIResponse(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { messages, userId, conversationId } = req.body;
 
-    if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'Messages array is required' });
-    }
-
-    let conversation: Conversation | null;
-
-    if (conversationId) {
-      conversation = await conversationService.getConversationWithMessages(conversationId);
-      if (!conversation) {
-        return res.status(404).json({ error: 'Conversation not found' });
+      if (!userId) {
+        return res.status(401).json({ error: 'User ID is required' });
       }
-    } else {
-      conversation = await conversationService.getOrCreateConversation(userId);
-    }
 
-    const latestMessage = messages[messages.length - 1];
-    if (latestMessage.role === 'user') {
-      const textParts = latestMessage.parts
-        .filter((p): p is { type: 'text'; text: string } => p.type === 'text');
-    
-      const userPrompt = textParts.map(p => p.text).join('');
-    
-      if (conversation) {
-        await conversationService.saveMessage(
-          conversation.id,
-          userPrompt,
-          'user'
-        );
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ error: 'Messages array is required' });
       }
-    }
-    let aiResponseContent = '';
 
-    const result = await aiService.generateResponse(messages, {
-      onTextChunk: (text) => {
-        aiResponseContent += text;
-      },
-      onFinish: async () => {
-        try {
-          if (conversation) {
-            await conversationService.saveMessage(
-              conversation.id,
-              aiResponseContent,
-              'assistant'
-            )
-            console.log(`Saved AI response to conversation: ${conversation.id}`);
-          }
-        } catch (error) {
-          console.error('Error saving AI response:', error);
+      let conversation: Conversation | null;
+
+      if (conversationId) {
+        conversation = await this.conversationService.getConversationWithMessages(conversationId);
+        if (!conversation) {
+          return res.status(404).json({ error: 'Conversation not found' });
+        }
+      } else {
+        conversation = await this.conversationService.getOrCreateConversation(userId);
+      }
+
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage.role === 'user') {
+        const textParts = latestMessage.parts
+          .filter((p): p is { type: 'text'; text: string } => p.type === 'text');
+      
+        const userPrompt = textParts.map(p => p.text).join('');
+      
+        if (conversation) {
+          await this.conversationService.saveMessage(
+            conversation.id,
+            userPrompt,
+            'user'
+          );
         }
       }
-    }, userId);
-    
-    result.pipeUIMessageStreamToResponse(res);
+      let aiResponseContent = '';
 
-    console.log(`POST /api/chat ${res.statusCode}`);
-  } catch (error) {
-    console.error('AI Controller Error:', error);
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Failed to get AI response' });
+      const result = await this.aiService.generateResponse(messages, {
+        onTextChunk: (text) => {
+          aiResponseContent += text;
+        },
+        onFinish: async () => {
+          try {
+            if (conversation) {
+              await this.conversationService.saveMessage(
+                conversation.id,
+                aiResponseContent,
+                'assistant'
+              )
+              console.log(`Saved AI response to conversation: ${conversation.id}`);
+            }
+          } catch (error) {
+            console.error('Error saving AI response:', error);
+          }
+        }
+      }, userId);
+      
+      result.pipeUIMessageStreamToResponse(res);
+
+      console.log(`POST /api/chat ${res.statusCode}`);
+    } catch (error) {
+      console.error('AI Controller Error:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to get AI response' });
+      }
     }
   }
-};
+}
 
-export default getAIResponse;
+
+const aiController = new AIController();
+export default aiController;
