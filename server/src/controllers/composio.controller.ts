@@ -19,7 +19,7 @@ class ComposioController {
   constructor() {
     this.composioService = composioService;
   }
-  async initiateConnection(req: ComposioInitiateConnectionRequest, res: Response) {
+  initiateConnection = async (req: ComposioInitiateConnectionRequest, res: Response) => {
     try {
       const { userId, authConfigId } = req.body;
       if (!userId) {
@@ -43,7 +43,7 @@ class ComposioController {
     }
   }
 
-  async checkConnectionStatus(req: Request, res: Response) {
+  checkConnectionStatus = async (req: Request, res: Response) => {
     try {
       const { connectionId } = req.query;
       if (!connectionId) {
@@ -59,7 +59,7 @@ class ComposioController {
   }
 
 
-  async deleteConnection(req: Request, res: Response) {
+  deleteConnection = async (req: Request, res: Response) => {
     try {
       const { connectionId } = req.query;
       if (!connectionId) {

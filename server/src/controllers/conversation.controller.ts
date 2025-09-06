@@ -24,7 +24,7 @@ class ConversationController {
   }
 
 
-  async getConversations(req: GetConversationsRequest, res: Response) {
+  getConversations = async (req: GetConversationsRequest, res: Response) => {
     const { userId } = req.query;
 
     if (!userId) {
@@ -40,7 +40,7 @@ class ConversationController {
     }
   }
 
-  async getConversationWithMessages(req: GetConversationWithMessagesRequest, res: Response) {
+  getConversationWithMessages = async (req: GetConversationWithMessagesRequest, res: Response) => {
     const { conversationId } = req.params;
     const { userId } = req.query;
 
@@ -58,7 +58,7 @@ class ConversationController {
 
   }
 
-  async createConversation(req: Request, res: Response) {
+  createConversation = async (req: Request, res: Response) => {
     const { userId, title } = req.body;
 
     if (!userId) {
@@ -74,7 +74,7 @@ class ConversationController {
     }
   }
 
-  async renameConversation(req: Request, res: Response) {
+  renameConversation = async (req: Request, res: Response) => {
     const { conversationId } = req.params;
     const { newTitle } = req.body;
 

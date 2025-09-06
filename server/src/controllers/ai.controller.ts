@@ -20,7 +20,7 @@ class AIController {
     this.conversationService = conversationService;
   }
 
-  async getAIResponse(req: AuthenticatedRequest, res: Response) {
+  getAIResponse = async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { messages, userId, conversationId } = req.body;
 
@@ -94,4 +94,4 @@ class AIController {
 
 
 const aiController = new AIController();
-export default aiController;
+export default aiController;  
