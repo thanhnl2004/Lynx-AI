@@ -2,11 +2,13 @@
 
 import { useChat } from "@ai-sdk/react";
 import { ChatMessage } from "./chat-message";
+import { ChatHeader } from "./chat-header";
 import { Input } from "@/components/chat/chat-input";
 import { useEffect, useRef } from "react";
 import { DefaultChatTransport } from "ai";
 import { useAuth } from "@/contexts/auth-context";
 import { useGetConversationById, useCreateConversation } from "@/hooks/use-convo";
+import { useToolkits } from "@/hooks/use-toolkits";
 import { CustomUIMessage, convertPrismaMessagesToUIMessages } from "@/types/message";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +25,7 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
   const { user } = useAuth();
   const { data: conversation } = useGetConversationById(conversationId || null);
   const createConversation = useCreateConversation();
+  const { getEnabledToolkits } = useToolkits();
 
   const { messages, sendMessage, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({
@@ -31,6 +34,7 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
         messages: outgoing,
         userId: user?.id,
         conversationId,
+        enabledToolkits: getEnabledToolkits(),
       }),
     }),
   });
@@ -121,6 +125,7 @@ export function ChatInterface({ conversationId }: ChatInterfaceProps) {
 
   return (
     <div className="min-h-screen bg-white pb-32">
+      <ChatHeader />
       <div className="px-4 pt-4 space-y-4">
         <div className="max-w-4xl mx-auto">
           {messages.length === 0 && (

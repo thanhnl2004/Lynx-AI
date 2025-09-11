@@ -33,20 +33,71 @@ class ComposioService {
     await this.composio.connectedAccounts.delete(connectionId);
   }
 
-  async getTools(userId: string, toolName: string) {
-    return await this.composio.tools.get(userId, toolName);
+  async getTools(userId: string, toolkitSlugs: string[] = ["GMAIL"]) {
+    try {
+      return await this.composio.tools.get(userId, {
+        toolkits: toolkitSlugs,
+      });
+    } catch (error) {
+      console.error('Error fetching tools:', error);
+      return {};
+    }
   }
 
   async getToolKits(userId: string) {
-    const connectedAccounts = await this.composio.connectedAccounts.list({
-      userIds: [userId],
-    });
-  
-    const connectedToolkitMap = new Map();
-  
-    connectedAccounts.items.forEach(account => {
-      connectedToolkitMap.set(account.toolkit.slug.toUpperCase(), account.id);
-    });
+    try {
+      console.log('ComposioService.getToolKits: Starting for user:', userId);
+      console.log('ComposioService.getToolKits: Composio API Key:', process.env.COMPOSIO_API_KEY ? 'Set' : 'Missing');
+      
+      const SUPPORTED_TOOLKITS = ['GMAIL', 'GOOGLECALENDAR', 'GITHUB', 'NOTION'];
+      
+      // List connected accounts to get connection IDs for each toolkit
+      console.log('ComposioService.getToolKits: Fetching connected accounts...');
+      const connectedAccounts = await this.composio.connectedAccounts.list({
+        userIds: [userId],
+      });
+      console.log('ComposioService.getToolKits: Connected accounts:', connectedAccounts);
+    
+      const connectedToolkitMap = new Map();
+      connectedAccounts.items.forEach(account => {
+        connectedToolkitMap.set(account.toolkit.slug.toUpperCase(), account.id);
+      });
+
+      // Fetch toolkit data from slugs
+      const toolkitPromises = SUPPORTED_TOOLKITS.map(async slug => {
+        try {
+          const toolkit = await this.composio.toolkits.get(slug);
+          const connectionId = connectedToolkitMap.get(slug.toUpperCase());
+
+          return {
+            name: toolkit.name,
+            slug: toolkit.slug,
+            description: toolkit.meta?.description,
+            logo: toolkit.meta?.logo,
+            categories: toolkit.meta?.categories,
+            isConnected: !!connectionId,
+            connectionId: connectionId || undefined,
+          };
+        } catch (error) {
+          console.error(`Error fetching toolkit ${slug}:`, error);
+          return {
+            name: slug,
+            slug: slug,
+            description: `${slug} toolkit`,
+            logo: null,
+            categories: [],
+            isConnected: false,
+            connectionId: undefined,
+          };
+        }
+      });
+
+      const toolkits = await Promise.all(toolkitPromises);
+      return { toolkits };
+    } catch (error) {
+      console.error('Error fetching toolkits:', error);
+      return { toolkits: [] };
+    }
   }
 }
 

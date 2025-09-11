@@ -1,4 +1,5 @@
 import { MessageCircle } from 'lucide-react';
+import { ConnectGmail } from './connect-gmail';
 
 export function ChatHeader() {
   return (

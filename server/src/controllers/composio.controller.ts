@@ -65,11 +65,33 @@ class ComposioController {
       if (!connectionId) {
         return res.status(400).json({ error: 'Connection ID is required' });
       }
-      const connection = await this.composioService.deleteConnection(connectionId as string);
-      res.status(200).json(connection);
+      await this.composioService.deleteConnection(connectionId as string);
+      res.status(200).json({ 
+        success: true,
+        message: 'Connection deleted successfully'
+      });
     } catch (error) {
       console.error('Error deleting Composio connection:', error);
       res.status(500).json({ error: 'Failed to delete Composio connection' });
+    }
+  }
+
+  getToolkits = async (req: Request, res: Response) => {
+    try {
+      console.log('getToolkits: Request received with query:', req.query);
+      const { userId } = req.query;
+      if (!userId) {
+        console.log('getToolkits: User ID missing');
+        return res.status(400).json({ error: 'User ID is required' });
+      }
+
+      console.log('getToolkits: Fetching toolkits for user:', userId);
+      const toolkits = await this.composioService.getToolKits(userId as string);
+      console.log('getToolkits: Result:', toolkits);
+      res.status(200).json(toolkits);
+    } catch (error) {
+      console.error('Error fetching toolkits:', error);
+      res.status(500).json({ error: 'Failed to fetch toolkits' });
     }
   }
 }

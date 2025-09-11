@@ -6,5 +6,6 @@ const router = Router();
 router.post("/api/composio/connect", composioController.initiateConnection);
 router.get("/api/composio/status", composioController.checkConnectionStatus);
 router.delete("/api/composio/delete", composioController.deleteConnection);
+router.get("/api/composio/toolkits", composioController.getToolkits);
 
 export default router;
