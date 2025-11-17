@@ -31,8 +31,7 @@ const HomeNavbar = () => {
         <NavbarLogo />
         <NavItems items={navItems} />
         <div className="flex items-center space-x-2">
-          <NavbarButton as={Link} href="/login" variant="secondary">Login</NavbarButton>
-          <NavbarButton variant="gradient">Get Started</NavbarButton>
+          <NavbarButton as={Link} href="/login" variant="gradient">Log In</NavbarButton>
         </div>
       </NavBody>
 
@@ -60,11 +59,8 @@ const HomeNavbar = () => {
             </a>
           ))}
           <div className="flex flex-col space-y-2 pt-4">
-            <NavbarButton as={Link} href="/login" variant="secondary" className="w-full">
-              Login
-            </NavbarButton>
-            <NavbarButton variant="gradient" className="w-full">
-              Get Started
+            <NavbarButton as={Link} href="/login" variant="gradient" className="w-full">
+              Log In
             </NavbarButton>
           </div>
         </MobileNavMenu>
