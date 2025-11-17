@@ -92,43 +92,50 @@ export function ConversationList() {
           
           return (
             <SidebarMenuItem key={conversation.id}>
-              <SidebarMenuButton 
-                onClick={() => !isEditing && handleConversationClick(conversation.id)}
+              <SidebarMenuButton
+                {...(isEditing
+                  ? { asChild: true }
+                  : { onClick: () => handleConversationClick(conversation.id) })}
                 className={`${isActive ? 'bg-gray-200' : ''} ${isEditing ? 'cursor-default' : ''}`}
               >
-                <MessageSquare size={16} />
                 {isEditing ? (
-                  <div className="flex items-center gap-1 flex-1">
-                    <Input
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      onKeyDown={(e) => handleKeyPress(e, conversation.id)}
-                      className="h-6 text-sm"
-                      autoFocus
-                      onFocus={(e) => e.target.select()}
-                    />
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-6 w-6 p-0"
-                      onClick={() => saveTitle(conversation.id)}
-                      disabled={renameConversation.isPending}
-                    >
-                      <Check size={12} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-6 w-6 p-0"
-                      onClick={cancelEditing}
-                    >
-                      <X size={12} />
-                    </Button>
+                  <div className="flex items-center gap-2 w-full">
+                    <MessageSquare size={16} />
+                    <div className="flex items-center gap-1 flex-1">
+                      <Input
+                        value={editingTitle}
+                        onChange={(e) => setEditingTitle(e.target.value)}
+                        onKeyDown={(e) => handleKeyPress(e, conversation.id)}
+                        className="h-6 text-sm"
+                        autoFocus
+                        onFocus={(e) => e.target.select()}
+                      />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={() => saveTitle(conversation.id)}
+                        disabled={renameConversation.isPending}
+                      >
+                        <Check size={12} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={cancelEditing}
+                      >
+                        <X size={12} />
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <span className="truncate">
-                    {conversation.title || 'Untitled'}
-                  </span>
+                  <>
+                    <MessageSquare size={16} />
+                    <span className="truncate">
+                      {conversation.title || 'Untitled'}
+                    </span>
+                  </>
                 )}
               </SidebarMenuButton>
               

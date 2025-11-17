@@ -9,7 +9,6 @@ interface AuthenticatedRequest extends Request {
     messages: UIMessage[];
     userId: string;  
     conversationId?: string;
-    enabledToolkits?: string[];
   }
 }
 class AIController {
@@ -23,8 +22,10 @@ class AIController {
 
   getAIResponse = async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const { messages, userId, conversationId, enabledToolkits = [] } = req.body;
-      console.log('AI Controller: Request received with enabledToolkits:', enabledToolkits);
+      const { messages, userId, conversationId } = req.body;
+      console.log('AI Controller: Request received');
+      console.log('AI Controller: userId:', userId);
+      console.log('AI Controller: conversationId:', conversationId);
 
       if (!userId) {
         return res.status(401).json({ error: 'User ID is required' });
@@ -80,7 +81,7 @@ class AIController {
             console.error('Error saving AI response:', error);
           }
         }
-      }, userId, enabledToolkits);
+      });
       
       result.pipeUIMessageStreamToResponse(res);
 

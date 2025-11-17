@@ -3,7 +3,6 @@ import express from "express";
 import cors from "cors";
 import aiRoutes from "./routes/ai.route.js";
 import conversationRoutes from "./routes/conversation.route.js";
-import composioRoutes from "./routes/composio.route.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -14,8 +13,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(aiRoutes);
-app.use(conversationRoutes); 
-app.use(composioRoutes);
+app.use(conversationRoutes);
 
 // global error handler
 app.use((err, req, res, next) => {
