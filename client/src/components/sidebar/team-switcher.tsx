@@ -4,11 +4,10 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarTrigger,
-  useSidebar,
 } from "@/components/ui/sidebar";
 
 export function TeamSwitcher() {
-  const { open } = useSidebar();
+  
 
   return (
     <SidebarMenu>
