@@ -163,7 +163,7 @@ export function ConversationList() {
                       <EllipsisVertical size={12} />
                     </PopoverTrigger>
                   </SidebarMenuAction>
-                  <PopoverContent className="w-48 p-2">
+                  <PopoverContent className="w-56 p-2">
                     <div className="flex flex-col gap-1 text-sm">
                       <button
                         type="button"
