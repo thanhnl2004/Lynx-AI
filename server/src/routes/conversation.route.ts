@@ -7,5 +7,6 @@ router.get("/api/conversations", conversationController.getConversations);
 router.get("/api/conversations/:conversationId", conversationController.getConversationWithMessages);
 router.post("/api/conversations", conversationController.createConversation);
 router.put("/api/conversations/:conversationId/rename", conversationController.renameConversation);
+router.delete("/api/conversations/:conversationId", conversationController.deleteConversation);
 
 export default router;

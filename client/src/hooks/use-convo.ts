@@ -3,22 +3,6 @@ import { useAuth } from "@/contexts/auth-context";
 
 import { api } from "@/utils/api";
 
-// interface Message {
-//   id: string;
-//   content: string;
-//   role: 'user' | 'assistant';
-//   createdAt: string;
-// }
-
-// interface Conversation {
-//   id: string;
-//   title: string;
-//   userId: string;
-//   messages: Message[];
-//   createdAt: string;
-//   updatedAt: string;
-// }  
-
 export const useGetConversations = () => {
   const { user } = useAuth();
   return useQuery({
@@ -76,4 +60,21 @@ export const useRenameConversation = () => {
       queryClient.invalidateQueries({ queryKey: ['conversation'] });
     }
   })
+}
+
+export const useDeleteConversation = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationKey: ['deleteConversation'],
+    mutationFn: async (conversationId: string) => {
+      if (!user?.id) throw new Error('User not authenticated');
+      return api.delete(`/api/conversations/${conversationId}?userId=${user.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversation'] });
+    }
+  });
 }

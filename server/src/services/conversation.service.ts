@@ -67,6 +67,21 @@ class ConversationService {
     })
 
   }
+
+  async deleteConversation(conversationId: string, userId: string) {
+    const deleteConversation = await this.db.conversation.delete({
+      where: { 
+        id: conversationId, 
+        userId: userId 
+      }
+    })
+
+    if (!deleteConversation) {
+      throw new Error('Conversation not found');
+    }
+
+    return deleteConversation;
+  }
 }
 
 const conversationService = new ConversationService();

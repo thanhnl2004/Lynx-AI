@@ -92,6 +92,26 @@ class ConversationController {
     }
 
   }
+
+  deleteConversation = async (req: Request, res: Response) => {
+    const { conversationId } = req.params;
+    const { userId } = req.query;
+
+    if (!conversationId || !userId || typeof userId !== 'string') {
+      return res.status(401).json({ error: 'Conversation ID and user ID are required' });
+    }
+
+    try {
+      await this.conversationService.deleteConversation(conversationId, userId);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      if (error instanceof Error && error.message === 'Conversation not found') {
+        return res.status(404).json({ error: 'Conversation not found' });
+      }
+      res.status(500).json({ error: 'Failed to delete conversation' });
+    }
+  }
 }
 
 const conversationController = new ConversationController();
